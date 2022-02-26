@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cskaoyan.mall.mapper.AdminMapper">
+
+    <select id="login" parameterType="com.cskaoyan.mall.model.bean.Admin" resultType="java.lang.Integer">
+        select count(*) from admin where username = #{username} and password = #{password}
+    </select>
+
+    <select id="exist" parameterType="com.cskaoyan.mall.model.bean.Admin" resultType="java.lang.Integer">
+        select count(*) from admin where username = #{username}
+    </select>
+
+    <select id="allAdmins"  parameterType="com.cskaoyan.mall.model.bean.Admin" resultType="com.cskaoyan.mall.model.bean.Admin">
+        select * from admin
+        <where>
+            <if test="username != null and username != ''">
+                username like concat("%",#{username},"%")
+            </if>
+            <if test="nickname != null and nickname != ''">
+                and nickname like concat("%",#{nickname},"%")
+            </if>
+        </where>
+    </select>
+
+    <insert id="addAdmin" parameterType="com.cskaoyan.mall.model.bean.Admin">
+        insert into admin values (null ,#{username}, #{password}, #{nickname});
+    </insert>
+
+    <delete id="deleteAdminById" parameterType="java.lang.Integer">
+        delete from admin where id = #{id};
+    </delete>
+
+    <update id="updateAdmin" parameterType="com.cskaoyan.mall.model.bean.Admin">
+        update admin set nickname = #{nickname},username = #{username}, password = #{password} where id=#{id};
+    </update>
+
+    <select id="getAdminInfo" parameterType="java.lang.Integer" resultType="com.cskaoyan.mall.model.bean.Admin">
+        select * from admin where id = #{id};
+    </select>
+
+    <select id="selectByPasswordAndNickname" parameterType="com.cskaoyan.mall.model.bean.Admin" resultType="java.lang.Integer">
+        select count(*) from admin where nickname = #{nickname} and password = #{password};
+    </select>
+
+    <update id="changePwd" parameterType="com.cskaoyan.mall.model.bean.Admin">
+        update admin set password = #{password} where nickname = #{nickname};
+    </update>
+
+
+</mapper>
+

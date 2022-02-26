@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cskaoyan.mall.mapper.GoodsMapper">
+
+    <!--<select id="login" parameterType="com.cskaoyan.mall.model.bean.Admin" resultType="java.lang.Integer">-->
+        <!--select count(*) from admin where username = #{username} and password = #{password}-->
+    <!--</select>-->
+
+    <!--<select id="exist" parameterType="com.cskaoyan.mall.model.bean.Admin" resultType="java.lang.Integer">-->
+        <!--select count(*) from admin where username = #{username}-->
+    <!--</select>-->
+
+    <select id="getType"  resultType="com.cskaoyan.mall.model.bean.Category">
+        select id,name from category ;
+    </select>
+
+    <select id="getGoodsByType" parameterType="java.lang.Integer" resultType="com.cskaoyan.mall.model.bean.Goods">
+        select * from goods
+        <where>
+            <if test="categoryId != -1 ">
+                and categoryId = #{categoryId}
+            </if>
+        </where>
+    </select>
+    <select id="searchGoods" parameterType="java.lang.String" resultType="com.cskaoyan.mall.model.bean.Goods">
+        select * from goods
+        <where>
+            <if test="name != null and name !='' ">
+                and name like concat("%",#{name},"%")
+            </if>
+        </where>
+    </select>
+
+    <select id="existForCategoryName" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(*) from category where name = #{name} ;
+    </select>
+
+    <insert id="addType" parameterType="com.cskaoyan.mall.model.bean.Category">
+        insert into category values (null , #{name});
+    </insert>
+
+    <insert id="addGoods" parameterType="com.cskaoyan.mall.model.bean.Goods" useGeneratedKeys="true" keyProperty="id">
+        insert into goods values (null ,#{name}, #{categoryId}, #{price}, #{image} ,#{stockNum} ,#{description});
+    </insert>
+
+    <insert id="addSpec" parameterType="com.cskaoyan.mall.model.bean.Spec">
+        insert into spec values
+        <foreach collection="list" item="spec" separator=",">
+            (null ,#{spec.specName},#{spec.stockNum},#{spec.unitPrice},#{spec.goodsId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete from goods where id = #{id};
+    </delete>
+    <delete id="deleteSpecByGoodsId" parameterType="java.lang.Integer">
+        delete from spec where goodsId = #{goodsId}
+    </delete>
+
+    <select id="getGoodsInfo" parameterType="java.lang.Integer" resultType="com.cskaoyan.mall.model.bean.Goods">
+        select * from goods where id = #{id};
+    </select>
+
+    <select id="getSpecInfo" parameterType="java.lang.Integer" resultType="com.cskaoyan.mall.model.bean.Spec">
+        select * from spec where goodsId = #{goodsId};
+    </select>
+
+    <select id="existForSpecName" parameterType="com.cskaoyan.mall.model.bean.Spec" resultType="java.lang.Integer">
+        select count(*) from spec where goodsId = #{goodsId} and specName = #{specName};
+    </select>
+
+    <insert id="addSpec1" parameterType="com.cskaoyan.mall.model.bean.Spec">
+        insert into spec values (null,#{specName},#{stockNum},#{unitPrice},#{goodsId});
+    </insert>
+
+    <delete id="deleteSpec" parameterType="com.cskaoyan.mall.model.bean.Spec">
+        delete from spec where specName = #{specName} and goodsId = #{goodsId};
+    </delete>
+
+    <update id="updateGoods" parameterType="com.cskaoyan.mall.model.bean.Goods">
+        update goods set name =#{name},categoryId=#{categoryId},image=#{image},description=#{description} where id=#{id};
+    </update>
+
+    <select id="getGoodsMsg" parameterType="java.lang.Integer" resultType="com.cskaoyan.mall.model.bean.Message">
+        select id,content,nickname,createtime,replyContent from message where goodsId = #{goodsId};
+    </select>
+
+    <insert id="askGoodsMsg" parameterType="com.cskaoyan.mall.model.bean.Message">
+        insert into message values (null,#{userId},#{goodsId},#{content},#{state},#{createtime},#{goodsName},#{username},null,#{nickname},null)
+    </insert>
+
+
+
+    <!-- 下面 这种批量化的方法是不可行的-->
+    <!--<update id="updateSpecs" parameterType="com.cskaoyan.mall.model.bean.Spec">-->
+        <!--<foreach collection="list" item="spec1" separator=";">-->
+            <!--update spec set specName=#{spec1.specName},stockNum=#{spec1.stockNum},unitPrice=#{spec1.unitPrice} where id = #{spec1.id}-->
+        <!--</foreach>-->
+    <!--</update>-->
+
+    <update id="updateSpec" parameterType="com.cskaoyan.mall.model.bean.Spec">
+        update spec set  specName=#{s.specName},stockNum=#{s.stockNum},unitPrice=#{s.unitPrice} where id = #{s.id}
+    </update>
+
+    <select id="noReplyMsg" resultType="com.cskaoyan.mall.model.bean.Message">
+        select * from message  where state = 1;
+    </select>
+
+    <select id="repliedMsg" resultType="com.cskaoyan.mall.model.bean.Message">
+        select * from message  where state = 0;
+    </select>
+
+    <update id="reply" parameterType="com.cskaoyan.mall.model.bean.Message">
+        update message set state = 0,replyContent = #{replyContent},replyTime=#{replyTime} where id = #{id};
+    </update>
+
+    <select id="getGoodsComment" parameterType="java.lang.Integer" resultType="com.cskaoyan.mall.model.bean.Comment">
+        select *from comment where goodsId = #{goodsId};
+    </select>
+</mapper>
+

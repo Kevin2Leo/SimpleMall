@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cskaoyan.mall.mapper.OrderMapper">
+
+    <select id="getTotalCount" parameterType="com.cskaoyan.mall.model.bo.orderBO.OrdersByPagesBO" resultType="java.lang.Integer">
+        select count(*) from orders
+        <where>
+            <if test=" id !=null ">
+                and id like concat("%", #{id} , "%")
+            </if>
+            <if test="name != null and name != '' ">
+                and nickname like concat("%" , #{name} ,"%")
+            </if>
+            <if test="address != null and address != '' ">
+                and address like concat("%", #{address}, "%")
+            </if>
+            <if test="goods != null and goods != '' ">
+                and goodsName like concat("%", #{goods}, "%")
+            </if>
+            <if test="moneyLimit1 != null and moneyLimit1 !='' ">
+                and amount &lt;= #{moneyLimit1}
+            </if>
+            <if test="moneyLimit2 != null and moneyLimit2 !='' ">
+                and amount &gt;= #{moneyLimit2}
+            </if>
+            <if test="state != -1">
+                and status = #{state}
+            </if>
+        </where>
+    </select>
+
+    <select id="pageOrders" parameterType="com.cskaoyan.mall.model.bo.orderBO.OrdersByPagesBO" resultType="com.cskaoyan.mall.model.vo.orderVO.OrdersVO">
+        select id,userId,nickname,recipient as name,address,phone,goodsName as goods,specName as spec,specId as goodsDetailId,num as goodsNum,amount,status as stateId from orders
+        <where>
+            <if test=" id !=null ">
+                and id like concat("%", #{id} , "%")
+            </if>
+            <if test="name != null and name != '' ">
+                and nickname like concat("%" , #{name} ,"%")
+            </if>
+            <if test="address != null and address != '' ">
+                and address like concat("%", #{address}, "%")
+            </if>
+            <if test="goods != null and goods != '' ">
+                and goodsName like concat("%", #{goods}, "%")
+            </if>
+            <if test="moneyLimit1 != null and moneyLimit1 !='' ">
+                and amount &lt;= #{moneyLimit1}
+            </if>
+            <if test="moneyLimit2 != null and moneyLimit2 !='' ">
+                and amount &gt;= #{moneyLimit2}
+            </if>
+            <if test="state != -1">
+                and status = #{state}
+            </if>
+        </where>
+        limit ${pagesize} offset ${(currentPage - 1) * pagesize}
+    </select>
+
+    <delete id="deleteOrder" parameterType="java.lang.Integer">
+        delete from orders where id = #{id}
+    </delete>
+
+    <select id="order" parameterType="java.lang.Integer" resultType="com.cskaoyan.mall.model.vo.orderVO.ShowVO">
+        select id,amount,num,specId as goodsDetailId,status as state,goodsName as goods,goodsId from orders where id = #{id}
+    </select>
+    <select id="getSpecInfo" parameterType="java.lang.Integer" resultType="com.cskaoyan.mall.model.bean.Spec">
+        select id,specName,unitPrice from spec where goodsId = #{goodsId};
+    </select>
+
+    <update id="changeOrder" parameterType="com.cskaoyan.mall.model.bo.orderBO.ChangeOrderBO">
+        update orders set status = #{state} where id = #{id}
+    </update>
+
+    <select id="getOrderByState" parameterType="com.cskaoyan.mall.model.bean.Orders" resultType="com.cskaoyan.mall.model.bean.Orders">
+        select *from orders where nickname = #{nickname}
+        <if test="status != -1">
+            and status = #{status}
+        </if>
+    </select>
+
+    <select id="getUser" parameterType="java.lang.String" resultType="com.cskaoyan.mall.model.bean.User">
+        select *from user where nickname = #{nickname};
+    </select>
+    <select id="getSpec" parameterType="java.lang.Integer" resultType="com.cskaoyan.mall.model.bean.Spec">
+        select *from spec where id = #{specId};
+    </select>
+    <select id="getGoods" parameterType="java.lang.Integer" resultType="com.cskaoyan.mall.model.bean.Goods">
+        select *from goods where id = #{goodsId};
+    </select>
+    <insert id="addOrder" parameterType="com.cskaoyan.mall.model.bean.Orders">
+        insert into orders values (null,#{userId},#{nickname},#{recipient},#{address},#{phone},#{goodsId},#{goodsName},#{specName},#{specId},#{price},#{num},#{amount},#{status},#{hasComment},#{createtime},#{updatetime},#{image});
+    </insert>
+
+    <update id="updateState" parameterType="java.lang.Integer">
+        update orders set status = 1 where id = #{id};
+    </update>
+
+    <update id="confirmReceive" parameterType="java.lang.Integer">
+        update orders set status = 3 where id = #{id};
+    </update>
+
+    <update id="updateHasComment" parameterType="java.lang.Integer">
+        update orders set hasComment = 1 where id = #{orderId}
+    </update>
+
+    <insert id="sendComment" parameterType="com.cskaoyan.mall.model.bean.Comment">
+        insert into comment(id,nickname,score,specName,comment,time,userId,goodsId) values (null,#{nickname},#{score},#{specName},#{comment},#{time},#{userId},#{goodsId});
+    </insert>
+
+</mapper>
+
