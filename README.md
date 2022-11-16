@@ -1,6 +1,6 @@
 ## Day1 项目启动
 
-电脑存储位置 D:\workspace_idea\29th\wangdao_project01_self
+
 
 ### 项目概述
 
